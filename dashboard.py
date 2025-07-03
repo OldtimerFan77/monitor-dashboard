@@ -1,5 +1,6 @@
 import os
 from flask import Flask, render_template, jsonify
+from flask import Response
 import requests
 from datetime import datetime
 
@@ -59,6 +60,27 @@ def api_status():
     token    = get_token()
     statuses = check_services(token)
     return jsonify(statuses)
+def build_prtg_xml(statuses: dict) -> str:
+    mapping = {'green': 0, 'yellow': 1, 'red': 2}
+    xml_lines = ['<?xml version="1.0" encoding="UTF-8"?>', '<prtg>']
+    for name, color in statuses.items():
+        val = mapping.get(color, 2)
+        xml_lines += [
+            '  <result>',
+            f'    <channel>{name}</channel>',
+            f'    <value>{val}</value>',
+            '    <unit>Custom</unit>',
+            '  </result>',
+        ]
+    xml_lines.append('<text>All services checked</text>')
+    xml_lines.append('</prtg>')
+    return "\n".join(xml_lines)
+
+@app.route('/api/status.xml')
+def status_xml():
+    global statuses
+    xml = build_prtg_xml(statuses)
+    return Response(xml, mimetype='application/xml')
 
 if __name__=="__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT",5000)))
