@@ -1,0 +1,6 @@
+body { font-family: sans-serif; margin: 2rem; }
+table { border-collapse: collapse; width:100%; max-width:600px; }
+th, td { border:1px solid #ccc; padding:0.5rem 1rem; }
+.status.green  { background:#c8e6c9; }
+.status.yellow { background:#fff9c4; }
+.status.red    { background:#ffcdd2; }
